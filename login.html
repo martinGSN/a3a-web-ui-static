@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+  <div class="bg-white p-6 rounded shadow-md w-96">
+    <h2 class="text-2xl font-semibold mb-4">Login</h2>
+    <form id="loginForm" class="space-y-4">
+      <input type="email" id="email" placeholder="Email" class="w-full p-2 border rounded" required>
+      <input type="password" id="password" placeholder="Password" class="w-full p-2 border rounded" required>
+      <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Login</button>
+    </form>
+    <p class="mt-4 text-center">
+      아직 계정이 없으신가요?
+      <a href="/register.html" class="text-blue-500 underline">회원가입 하러 가기</a>
+    </p>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:8080";
+  
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+  
+      const res = await fetch(`${API_BASE}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ username: email, password }),
+        credentials: "include"
+      });
+  
+      if (res.status === 200) {
+        // ✅ 로그인 성공
+        window.location.href = "/index.html";
+      } else if (res.status === 401) {
+        // ✅ Spring Security가 로그인 실패 시 401로 응답하게 수정했기 때문에 여기로 옴
+        alert("로그인 실패: 이메일 또는 비밀번호가 잘못되었습니다.");
+      } else {
+        alert("예상치 못한 응답입니다. 상태 코드: " + res.status);
+      }
+    });
+  </script>
+  
+</body>
+</html>

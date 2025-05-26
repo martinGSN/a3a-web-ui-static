@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Product List</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded shadow">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold">Products</h1>
+      <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Logout</button>
+    </div>
+
+    <table id="productTable" class="w-full text-sm border mb-6">
+      <thead class="bg-gray-200">
+        <tr>
+          <th class="px-4 py-2">Name</th>
+          <th class="px-4 py-2">Description</th>
+          <th class="px-4 py-2">Price</th>
+          <th class="px-4 py-2">Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <form id="productForm" class="space-y-2">
+      <input id="name" placeholder="Name" class="w-full p-2 border rounded" required>
+      <input id="description" placeholder="Description" class="w-full p-2 border rounded" required>
+      <input id="price" type="number" placeholder="Price" class="w-full p-2 border rounded" required>
+      <button type="submit" class="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">Add Product</button>
+    </form>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:8080";
+
+    // ✅ 로그아웃
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await fetch(`${API_BASE}/logout`, {
+        method: "POST",
+        credentials: "include"
+      });
+      window.location.href = "/login.html";
+    });
+
+    // ✅ 목록 불러오기
+    function loadProducts() {
+      fetch(`${API_BASE}/products`, { credentials: "include" })
+        .then(res => {
+          const ct = res.headers.get("content-type") || "";
+          if (!res.ok || !ct.includes("application/json")) {
+            throw new Error("로그인이 필요하거나 서버 오류 발생");
+          }
+          return res.json();
+        })
+        .then(data => {
+          const tbody = document.querySelector("#productTable tbody");
+          tbody.innerHTML = "";
+          data.forEach(product => {
+            const row = `<tr>
+              <td class="border px-4 py-2">${product.name}</td>
+              <td class="border px-4 py-2">${product.description}</td>
+              <td class="border px-4 py-2">${product.price}</td>
+              <td class="border px-4 py-2">
+                <button class="edit-btn bg-yellow-400 text-white px-2 py-1 rounded" data-id="${product.id}">수정</button>
+                <button class="delete-btn bg-red-500 text-white px-2 py-1 rounded ml-2" data-id="${product.id}">삭제</button>
+              </td>
+            </tr>`;
+            tbody.innerHTML += row;
+          });
+        })
+        .catch(err => {
+          console.error(err.message);
+          alert("로그인이 필요합니다. 다시 로그인 해주세요.");
+          window.location.href = "/login.html";
+        });
+    }
+
+    loadProducts();
+
+    // ✅ 제품 등록
+    document.getElementById("productForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const product = {
+        name: document.getElementById("name").value,
+        description: document.getElementById("description").value,
+        price: parseFloat(document.getElementById("price").value)
+      };
+
+      const res = await fetch(`${API_BASE}/products`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(product),
+        credentials: "include"
+      });
+
+      if (res.ok) {
+        const newProduct = await res.json();
+        alert("등록 완료");
+
+        const tbody = document.querySelector("#productTable tbody");
+        const row = `<tr>
+          <td class="border px-4 py-2">${newProduct.name}</td>
+          <td class="border px-4 py-2">${newProduct.description}</td>
+          <td class="border px-4 py-2">${newProduct.price}</td>
+          <td class="border px-4 py-2">
+            <button class="edit-btn bg-yellow-400 text-white px-2 py-1 rounded" data-id="${newProduct.id}">수정</button>
+            <button class="delete-btn bg-red-500 text-white px-2 py-1 rounded ml-2" data-id="${newProduct.id}">삭제</button>
+          </td>
+        </tr>`;
+        tbody.innerHTML += row;
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        alert("등록 실패");
+      }
+    });
+
+    // ✅ 수정 / 삭제
+    document.addEventListener("click", (e) => {
+      const id = e.target.dataset.id;
+
+      if (e.target.classList.contains("edit-btn")) {
+        const newName = prompt("새 이름?");
+        const newDesc = prompt("새 설명?");
+        const newPrice = prompt("새 가격?");
+        if (!newName || !newDesc || !newPrice) return;
+
+        fetch(`${API_BASE}/products/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: newName,
+            description: newDesc,
+            price: parseFloat(newPrice)
+          }),
+          credentials: "include"
+        }).then(res => {
+          if (res.ok) {
+            alert("수정 완료");
+            location.reload();
+          } else {
+            alert("수정 실패");
+          }
+        });
+      }
+
+      if (e.target.classList.contains("delete-btn")) {
+        if (!confirm("정말 삭제하시겠습니까?")) return;
+
+        fetch(`${API_BASE}/products/${id}`, {
+          method: "DELETE",
+          credentials: "include"
+        }).then(res => {
+          if (res.ok) {
+            alert("삭제 완료");
+            location.reload();
+          } else {
+            alert("삭제 실패");
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
