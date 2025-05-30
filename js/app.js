@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
       price: parseFloat(document.getElementById("price").value)
     };
 
-    const res = await fetch(`${API_BASE}/products`, {
+    const res = await fetch(`/products`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(product),
@@ -48,7 +48,7 @@ document.addEventListener("click", (e) => {
     const newPrice = prompt("새 가격?");
     if (!newName || !newDesc || !newPrice) return;
 
-    fetch(`${API_BASE}/products/${id}`, {
+    fetch(`/products/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -74,7 +74,7 @@ document.addEventListener("click", (e) => {
     const id = e.target.dataset.id;
     if (!confirm("정말 삭제하시겠습니까?")) return;
 
-    fetch(`${API_BASE}/products/${id}`, {
+    fetch(`/products/${id}`, {
       method: "DELETE",
       credentials: "include"
     }).then(res => {

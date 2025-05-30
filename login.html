@@ -27,7 +27,7 @@
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
   
-      const res = await fetch(`${API_BASE}/login`, {
+      const res = await fetch(`/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ username: email, password }),
