@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>관리자 페이지</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .azure-blue { background-color: #0078d4; }
+    .azure-blue:hover { background-color: #005a9e; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gray-100 font-sans">
+  <div class="bg-white shadow-xl rounded-xl w-full max-w-4xl p-10">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-semibold text-gray-800">👮 관리자 페이지</h1>
+      <a href="/index.html" class="text-sm px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400">메인으로</a>
+    </div>
+
+    <table class="min-w-full text-sm border border-gray-300 mb-8">
+      <thead class="bg-gray-200 text-gray-700">
+        <tr>
+          <th class="px-4 py-2 border-b">ID</th>
+          <th class="px-4 py-2 border-b">이메일</th>
+          <th class="px-4 py-2 border-b">이름</th>
+          <th class="px-4 py-2 border-b">소속</th>
+          <th class="px-4 py-2 border-b">관리</th>
+        </tr>
+      </thead>
+      <tbody id="userTableBody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const API_BASE = "http://localhost:8080";
+
+    function loadUsers() {
+      fetch(`${API_BASE}/admin/users`, { credentials: "include" })
+        .then(res => {
+          if (!res.ok) throw new Error("접근 권한이 없습니다.");
+          return res.json();
+        })
+        .then(data => {
+          const tbody = document.getElementById("userTableBody");
+          tbody.innerHTML = "";
+          data.forEach(user => {
+            const row = `<tr>
+              <td class="border px-4 py-2">${user.id}</td>
+              <td class="border px-4 py-2">${user.email}</td>
+              <td class="border px-4 py-2">${user.name}</td>
+              <td class="border px-4 py-2">${user.organization}</td>
+              <td class="border px-4 py-2">
+                <button class="delete-btn text-white bg-red-500 px-3 py-1 rounded" data-id="${user.id}">탈퇴</button>
+              </td>
+            </tr>`;
+            tbody.innerHTML += row;
+          });
+        })
+        .catch(err => {
+          alert(err.message);
+          window.location.href = "/login.html";
+        });
+    }
+
+    loadUsers();
+
+    document.addEventListener("click", e => {
+      if (e.target.classList.contains("delete-btn")) {
+        const id = e.target.dataset.id;
+        if (!confirm("정말 이 유저를 탈퇴시키겠습니까?")) return;
+
+        fetch(`${API_BASE}/admin/users/${id}`, {
+          method: "DELETE",
+          credentials: "include"
+        }).then(res => {
+          if (res.ok) {
+            alert("탈퇴 완료");
+            loadUsers();
+          } else {
+            alert("실패");
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
