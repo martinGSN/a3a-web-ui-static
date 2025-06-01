@@ -47,21 +47,30 @@
 
   <script>
     const API_BASE = "http://localhost:8080";
-
+  
     document.getElementById("register-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-
+  
       const email = document.getElementById("email").value;
+  
+      // ✅ 이메일 중복 체크
+      const checkRes = await fetch(`${API_BASE}/check-email?email=${encodeURIComponent(email)}`);
+      const exists = await checkRes.json();
+      if (exists) {
+        alert("이미 사용 중인 이메일입니다.");
+        return;
+      }
+  
       const password = document.getElementById("password").value;
       const name = document.getElementById("name").value;
       const organization = document.getElementById("organization").value;
-
+  
       const res = await fetch(`${API_BASE}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, name, organization })
       });
-
+  
       if (res.ok) {
         alert("회원가입 완료! 로그인 페이지로 이동합니다.");
         window.location.href = "/login.html";
@@ -70,5 +79,6 @@
       }
     });
   </script>
+  
 </body>
 </html>
