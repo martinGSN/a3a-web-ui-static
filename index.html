@@ -63,7 +63,7 @@
 
     // ✅ 로그아웃
     document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await fetch(`${API_BASE}/logout`, {
+      await fetch(`/api/logout`, {
         method: "POST",
         credentials: "include"
       });
@@ -71,7 +71,7 @@
     });
 
     // ✅ 사용자 정보 로딩 (관리자 확인)
-    fetch(`${API_BASE}/me`, { credentials: "include" })
+    fetch(`/api/me`, { credentials: "include" })
       .then(res => {
         if (!res.ok) throw new Error("인증 실패 또는 서버 오류");
         return res.json();
@@ -90,7 +90,7 @@
 
     // ✅ 상품 목록 로딩
     function loadProducts() {
-      fetch(`${API_BASE}/products`, { credentials: "include" })
+      fetch(`/api/products`, { credentials: "include" })
         .then(res => {
           const ct = res.headers.get("content-type") || "";
           if (!res.ok || !ct.includes("application/json")) {
@@ -132,7 +132,7 @@
         price: parseFloat(document.getElementById("price").value)
       };
 
-      const res = await fetch(`${API_BASE}/products`, {
+      const res = await fetch(`/api/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(product),
@@ -152,12 +152,12 @@
       const id = e.target.dataset.id;
 
       if (e.target.classList.contains("edit-btn")) {
-        const newName = prompt("새 이름?");
-        const newDesc = prompt("새 설명?");
-        const newPrice = prompt("새 가격?");
+        const newName = prompt("새 이름을 입력하세요");
+        const newDesc = prompt("새 설명을 입력하세요");
+        const newPrice = prompt("새 가격을 입력하세요");
         if (!newName || !newDesc || !newPrice) return;
 
-        fetch(`${API_BASE}/products/${id}`, {
+        fetch(`/api/products/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -179,7 +179,7 @@
       if (e.target.classList.contains("delete-btn")) {
         if (!confirm("정말 삭제하시겠습니까?")) return;
 
-        fetch(`${API_BASE}/products/${id}`, {
+        fetch(`/api/products/${id}`, {
           method: "DELETE",
           credentials: "include"
         }).then(res => {

@@ -32,10 +32,10 @@
   </div>
 
   <script>
-    const API_BASE = "http://localhost:8080";
+    // const API_BASE = "http://localhost:8080";
 
     function loadUsers() {
-      fetch(`${API_BASE}/admin/users`, { credentials: "include" })
+      fetch(`/api/admin/users`, { credentials: "include" })
         .then(res => {
           if (!res.ok) throw new Error("접근 권한이 없습니다.");
           return res.json();
@@ -69,7 +69,7 @@
         const id = e.target.dataset.id;
         if (!confirm("정말 이 유저를 탈퇴시키겠습니까?")) return;
 
-        fetch(`${API_BASE}/admin/users/${id}`, {
+        fetch(`/api/admin/users/${id}`, {
           method: "DELETE",
           credentials: "include"
         }).then(res => {
